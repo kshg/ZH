@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "TreeNode.h"
 
+/*这个是使用了数据结构中的树结构来存储xml里面的属性,要注意的细节多,该文件的目的是讲xml的属性值存放到字典里面 NSDictionary*/
+
 @interface ReadXML : NSObject
 @property (nonatomic,copy) NSString *text;
 @property (nonatomic,assign)int cur;//解析XML到数组时需要用到的遍历数组的全局游标

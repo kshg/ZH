@@ -52,6 +52,8 @@
     return [chineseTest evaluateWithObject:chineseName];
 }
 
+
+
 +(NSString*)getAppVersion
 {
     NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
@@ -69,7 +71,7 @@
 +(NSString *)getAllSupportLanguage{
     NSUserDefaults *defaults = [ NSUserDefaults standardUserDefaults ];
     // 取得 iPhone 支持的所有语言设置
-    NSArray *languages = [defaults objectForKey : @"AppleLanguages" ];
+    NSArray *languages = [defaults objectForKey : @"AppleLanguages"];
     return [NSString stringWithFormat:@"%@" , languages];
 }
 

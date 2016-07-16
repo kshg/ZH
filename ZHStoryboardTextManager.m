@@ -267,8 +267,30 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
     return [NSString stringWithFormat:@"@property (strong, nonatomic) UI%@ *%@;",viewCategory,viewName];
 }
 
+//viewCategory 控件的真名类别  viewName控件customClass的属性值
++ (NSString *)getPropertyWithViewName_XIB:(NSString *)viewName withViewCategory:(NSString *)viewCategory isOnlyTableViewOrCollectionView:(BOOL)isOnlyTableViewOrCollectionView{
+    //如果有数字结尾,就不产生属性代码
+    //    unichar ch=[viewName characterAtIndex:viewName.length-1];
+    //    if (ch>='0'&&ch<='9') {
+    //        return @"";
+    //    }
+    if(isOnlyTableViewOrCollectionView){
+        if([viewCategory isEqualToString:@"tableView"]){
+            viewName=@"tableView";
+        }
+        if([viewCategory isEqualToString:@"collectionView"]){
+            viewName=@"collectionView";
+        }
+    }
+    
+    //第一个字母大写
+    viewCategory=[self upFirstCharacter:viewCategory];
+    
+    return [NSString stringWithFormat:@"@property (strong, nonatomic) UI%@ *%@;",viewCategory,viewName];
+}
+
 /**获取创建某个view的代码*/
-+ (NSString *)getCreateViewCodeWithViewName:(NSString *)viewName withViewCategoryName:(NSString *)viewCategoryName addToFatherView:(NSString *)fatherView withDoneArrM:(NSMutableArray *)doneArrM{
++ (NSString *)getCreateViewCodeWithViewName:(NSString *)viewName withViewCategoryName:(NSString *)viewCategoryName addToFatherView:(NSString *)fatherView withDoneArrM:(NSMutableArray *)doneArrM isOnlyTableViewOrCollectionView:(BOOL)isOnlyTableViewOrCollectionView{
     
     NSMutableString *textCode=[NSMutableString string];
     
@@ -295,7 +317,7 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
         [textCode appendFormat:@"UI%@ *%@=[UI%@ new];\n",[self upFirstCharacter:viewCategoryName],viewName,[self upFirstCharacter:viewCategoryName]];
     }
     [doneArrM addObject:viewName];
-    [textCode appendFormat:@"[%@ addSubview:%@];\nself.%@=%@;\n\n\n",fatherView,viewName,viewName,viewName];
+    [textCode appendFormat:@"[%@ addSubview:%@];\nself.%@=%@;\n\n",fatherView,viewName,viewName,viewName];
     return textCode;
 }
 
@@ -323,7 +345,7 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
 }
 
 /**创建约束代码*/
-+ (NSString *)getCreatConstraintCodeWithViewName:(NSString *)viewName withConstraintDic:(NSDictionary *)constraintDic isCell:(BOOL)isCell withDoneArrM:(NSMutableArray *)doneArrM withCustomAndNameDic:(NSDictionary *)customAndNameDic addToFatherView:(NSString *)fatherView{
++ (NSString *)getCreatConstraintCodeWithViewName:(NSString *)viewName withConstraintDic:(NSDictionary *)constraintDic isCell:(BOOL)isCell withDoneArrM:(NSMutableArray *)doneArrM withCustomAndNameDic:(NSDictionary *)customAndNameDic addToFatherView:(NSString *)fatherView isOnlyTableViewOrCollectionView:(BOOL)isOnlyTableViewOrCollectionView{
     
     NSMutableString *textCode=[NSMutableString string];
     
@@ -366,7 +388,7 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
                 }
             }else{
                 if (firstItem.length>0&&[self isView:firstItem]&&[firstItem isEqual:@"self.view"]==NO&&[firstItem isEqual:@"self.contentView"]==NO&&[doneArrM containsObject:firstItem]==NO) {
-                    [textCode insertString:[self getCreateViewCodeWithViewName:firstItem withViewCategoryName:customAndNameDic[firstItem] addToFatherView:fatherView withDoneArrM:doneArrM] atIndex:0];
+                    [textCode insertString:[self getCreateViewCodeWithViewName:firstItem withViewCategoryName:customAndNameDic[firstItem] addToFatherView:fatherView withDoneArrM:doneArrM isOnlyTableViewOrCollectionView:isOnlyTableViewOrCollectionView] atIndex:0];
                 }
             }
             
@@ -378,7 +400,7 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
                 }
             }else{
                 if (secondItem.length>0&&[self isView:secondItem]&&[secondItem isEqual:@"self.view"]==NO&&[firstItem isEqual:@"self.contentView"]==NO&&[doneArrM containsObject:secondItem]==NO) {
-                    [textCode insertString:[self getCreateViewCodeWithViewName:secondItem withViewCategoryName:customAndNameDic[secondItem] addToFatherView:fatherView withDoneArrM:doneArrM] atIndex:0];
+                    [textCode insertString:[self getCreateViewCodeWithViewName:secondItem withViewCategoryName:customAndNameDic[secondItem] addToFatherView:fatherView withDoneArrM:doneArrM isOnlyTableViewOrCollectionView:isOnlyTableViewOrCollectionView] atIndex:0];
                 }
             }
  
@@ -420,7 +442,8 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
                     }
                 }
                 
-            }else if ([secondItem isEqualToString:viewName]){
+            }
+            else if ([secondItem isEqualToString:viewName]){
                 
                 if (firstItem.length>0&&[self isSystemIdStr:firstItem]==NO) {
                     if(firstAttribute.length>0){
@@ -466,7 +489,8 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
                     }
                 }
                 
-            }else{
+            }
+            else{
                 if (firstAttribute.length>0) {
                     [textCode appendFormat:@"make.%@.equalTo(@(%@))",firstAttribute,constant];
                 }else{
@@ -483,9 +507,82 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
     }
     
     
-    [textCode appendString:@"}];\n\n"];
+    [textCode appendString:@"}];\n\n\n"];
+    
+    //解决multipliedBy(m:n)的问题
+    [self dealWith_multipliedBy:textCode];
+    //解决.offset(--n)的问题
+    [self dealWith_offset:textCode];
     return textCode;
 }
+
+//解决multipliedBy(m:n)的问题
++ (void)dealWith_multipliedBy:(NSMutableString *)textCode{
+    NSArray *arr=[ZHNSString getMidStringBetweenLeftString:@"multipliedBy(" RightString:@")" withText:textCode getOne:NO withIndexStart:0 stopString:nil];
+    
+    NSString *text=[NSString stringWithString:textCode];
+    NSString *newStr;
+    for (NSString *str in arr) {
+        if ([str rangeOfString:@":"].location!=NSNotFound) {
+            newStr=[str stringByReplacingOccurrencesOfString:@":" withString:@"/"];
+            newStr=[newStr stringByAppendingString:@".0"];
+            
+            text=[text stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"multipliedBy(%@)",str] withString:[NSString stringWithFormat:@"multipliedBy(%@)",newStr]];
+        }
+    }
+    if (arr.count>0) {
+        [textCode setString:text];
+    }
+}
+
+//解决.offset(--n)的问题
++ (void)dealWith_offset:(NSMutableString *)textCode{
+    [textCode setString:[textCode stringByReplacingOccurrencesOfString:@".offset(--" withString:@".offset(-"]];
+}
+
+//解决self.tableView3=tableView3;的问题
++ (void)dealWith_self_tableView_collectionView:(NSMutableString *)textCode isOnlyTableViewOrCollectionView:(BOOL)isOnlyTableViewOrCollectionView{
+    if (isOnlyTableViewOrCollectionView==NO) {
+        return;
+    }
+    NSArray *tableViews=[ZHNSString getMidStringBetweenLeftString:@"UITableView *" RightString:@"=" withText:textCode getOne:NO withIndexStart:0 stopString:nil];
+    NSArray *collectionViews=[ZHNSString getMidStringBetweenLeftString:@"UICollectionView *" RightString:@"=" withText:textCode getOne:NO withIndexStart:0 stopString:nil];
+    
+    NSString *text=[NSString stringWithString:textCode];
+    
+    for (NSString *str in tableViews) {
+        if ([str hasPrefix:@"tableView"]) {
+            text=[text stringByReplacingOccurrencesOfString:str withString:@"tableView"];
+        }
+    }
+    
+    for (NSString *str in collectionViews) {
+        if ([str hasPrefix:@"collectionView"]) {
+            text=[text stringByReplacingOccurrencesOfString:str withString:@"collectionView"];
+        }
+    }
+    if (tableViews.count>0||collectionViews.count>0) {
+        [textCode setString:text];
+    }
+}
+
+//UIMapView *mapView1;
++ (void)dealWith_UIMapView:(NSMutableString *)textCode{
+    if ([textCode rangeOfString:@"UIMapView"].location==NSNotFound) {
+        return;
+    }
+    
+    [self addCodeText:@"#import <MapKit/MapKit.h>\n#error 请导入<MapKit.framework>框架" andInsertType:ZHAddCodeType_Import toStrM:textCode insertFunction:nil];
+    
+    NSString *text=[NSString stringWithString:textCode];
+    
+    //开始替换
+    text=[text stringByReplacingOccurrencesOfString:@"UIMapView" withString:@"MKMapView"];
+    
+    [textCode setString:text];
+}
+
+
 
 /**第一个字母大写*/
 + (NSString *)upFirstCharacter:(NSString *)text{
@@ -504,8 +601,8 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
     
     NSString *customClass=[rowStr substringFromIndex:[rowStr rangeOfString:@"customClass=\""].location+13];
     customClass=[customClass substringToIndex:[customClass rangeOfString:@"\""].location];
-    customClass=[ZHStroyBoardFileManager getAdapterCollectionViewCellName:customClass];
-    customClass=[ZHStroyBoardFileManager getAdapterTableViewCellName:customClass];
+    
+    customClass=[ZHStroyBoardFileManager getAdapterCollectionViewCellAndTableViewCellName:customClass];
     
     NSString *newCustomClass;
     NSString *text=[ZHNSString removeSpaceBeforeAndAfterWithString:rowStr];
@@ -1206,8 +1303,6 @@ static NSMutableDictionary *ZHStoryboardIDDicM;
         
         if(registerClassText.length>0)
             [self addCodeText:registerClassText andInsertType:ZHAddCodeType_InsertFunction toStrM:text insertFunction:@"- (void)viewDidLoad{"];
-        
-        
         
         [strM appendString:@"    //随便给一个cell\n\
          UICollectionViewCell *cell=[UICollectionViewCell new];\n\

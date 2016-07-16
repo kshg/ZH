@@ -123,6 +123,14 @@
     }
     return @"";
 }
++ (NSString *)getMacDesktop{
+    NSString *directory=NSHomeDirectory();
+    if ([directory rangeOfString:@"/Library"].location!=NSNotFound) {
+        directory=[directory substringToIndex:[directory rangeOfString:@"/Library"].location];
+    }
+    directory=[directory stringByAppendingPathComponent:@"Desktop"];
+    return directory;
+}
 
 #pragma mark 文件夹操作
 + (void)creatDirectorIfNotExsit:(NSString *)DirectorPath{

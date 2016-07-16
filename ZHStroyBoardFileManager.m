@@ -396,6 +396,8 @@ static NSString *MainDirectory;
     
     if ([[name lowercaseString] hasSuffix:@"tableviewcell"]) {
         name=[name substringToIndex:name.length-@"tableviewcell".length];
+    }else if ([[name lowercaseString] hasSuffix:@"tabelviewcell"]) {
+        name=[name substringToIndex:name.length-@"tabelviewcell".length];
     }
     else if ([[name lowercaseString] hasSuffix:@"cell"]) {
         name=[name substringToIndex:name.length-@"cell".length];
@@ -431,6 +433,22 @@ static NSString *MainDirectory;
     }
     return name;
 }
+
++ (NSString *)getAdapterCollectionViewCellAndTableViewCellName:(NSString *)name{
+    
+    if ([[name lowercaseString] hasSuffix:@"tableviewcell"]) {
+        name=[name substringToIndex:name.length-@"tableviewcell".length];
+    }else if ([[name lowercaseString] hasSuffix:@"tabelviewcell"]) {
+        name=[name substringToIndex:name.length-@"tabelviewcell".length];
+    }else if ([[name lowercaseString] hasSuffix:@"collectionviewcell"]) {
+        name=[name substringToIndex:name.length-@"collectionviewcell".length];
+    }
+    else if ([[name lowercaseString] hasSuffix:@"cell"]) {
+        name=[name substringToIndex:name.length-@"cell".length];
+    }
+    return name;
+}
+
 + (NSString *)getAdapterCollectionViewCellModelName:(NSString *)name{
     
     if ([[name lowercaseString] hasSuffix:@"collectionviewcellmodel"]) {

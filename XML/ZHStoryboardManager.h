@@ -11,6 +11,7 @@
 @interface ZHStoryboardManager : NSObject
 
 - (void)StroyBoard_To_Masonry:(NSString *)stroyBoard;
+
 - (void)Xib_To_Masonry:(NSString *)xib;
 
 @end

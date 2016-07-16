@@ -61,6 +61,7 @@ typedef void (^MBProgressHUDCompletionBlock)();
 #endif
 
 @interface MBProgressHUD : UIView
++ (void)showHUDAddedTo:(UIView *)view withText:(NSString *)text withDuration:(CGFloat)duration;
 + (MB_INSTANCETYPE)showHUDAddedTo:(UIView *)view animated:(BOOL)animated;
 + (BOOL)hideHUDForView:(UIView *)view animated:(BOOL)animated;
 + (NSUInteger)hideAllHUDsForView:(UIView *)view animated:(BOOL)animated;

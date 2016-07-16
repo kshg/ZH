@@ -1,6 +1,9 @@
 #import <Foundation/Foundation.h>
 #import "ReadXML.h"
 #import "ZHNSString.h"
+
+/**这个类用于获取StroyBoard里面重要的属性*/
+
 @interface ZHStoryboardXMLManager : NSObject
 /**获取所有的ViewController*/
 + (NSArray *)getAllViewControllerWithDic:(NSDictionary *)MyDic andXMLHandel:(ReadXML *)xml;

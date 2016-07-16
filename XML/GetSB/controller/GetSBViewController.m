@@ -57,6 +57,15 @@
     [self loadData];
     
     [self.timer fire];
+    [TabBarAndNavagation setLeftBarButtonItemTitle:@"使用简介" TintColor:[UIColor redColor] target:self action:@selector(helpAction)];
+    [TabBarAndNavagation setRightBarButtonItemTitle:@"更多功能" TintColor:[UIColor redColor] target:self action:@selector(moreFuncAction)];
+}
+
+- (void)helpAction{
+    [TabBarAndNavagation pushViewController:@"HelpViewController" toTarget:self pushHideTabBar:YES backShowTabBar:NO];
+}
+- (void)moreFuncAction{
+    [TabBarAndNavagation pushViewController:@"MoreFunctionViewController" toTarget:self pushHideTabBar:YES backShowTabBar:NO];
 }
 
 - (void)loadData{

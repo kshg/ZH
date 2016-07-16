@@ -3,4 +3,3 @@
 @interface GetSBViewController : UIViewController
 
 @end
-

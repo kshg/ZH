@@ -33,33 +33,35 @@
     return strM;
 }
 - (NSDictionary *)getDicFromFileName:(NSString *)fileName{
-    NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
+    NSString *filePath=[ZHFileManager getMacDesktop];
     
     if ([fileName hasSuffix:@".m"]) {
         filePath =[filePath stringByAppendingPathComponent:fileName];
     }else{
         filePath =[filePath stringByAppendingPathComponent:[fileName stringByAppendingString:@".m"]];
+    }
+    
+    if ([ZHFileManager fileExistsAtPath:filePath]==NO) {
+        return nil;
     }
     
     NSString *strTemp=[NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
-    
     return [NSJSONSerialization JSONObjectWithData:[strTemp dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
 }
+
 - (NSString *)creatFatherFile:(NSString *)fileName andData:(NSArray *)arrData{
     
-    NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
-    
+    NSString *filePath=[ZHFileManager getMacDesktop];
     if ([fileName hasSuffix:@".m"]) {
         filePath =[filePath stringByAppendingPathComponent:fileName];
     }else{
         filePath =[filePath stringByAppendingPathComponent:[fileName stringByAppendingString:@".m"]];
     }
-    
     [[NSFileManager defaultManager]createFileAtPath:filePath contents:[[self getInfoFromDic:arrData]dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
     return filePath;
 }
 - (void)saveText:(NSString *)text toFileName:(NSArray *)fileNameDegree{
-    NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
+    NSString *filePath=[ZHFileManager getMacDesktop];
     
     for (NSInteger i=0; i<fileNameDegree.count; i++) {
         if (![fileNameDegree[i] hasPrefix:@"."]) {
@@ -73,13 +75,13 @@
     [[NSFileManager defaultManager]createFileAtPath:filePath contents:[text dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
 }
 - (NSString *)getDirectoryPath:(NSString *)fileName{
-    NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
+    NSString *filePath=[ZHFileManager getMacDesktop];
     filePath =[filePath stringByAppendingPathComponent:fileName];
     return filePath;
 }
 
 - (void)saveStoryBoardCollectionViewToFileName:(NSArray *)fileNameDegree{
-    NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
+    NSString *filePath=[ZHFileManager getMacDesktop];
     
     for (NSInteger i=0; i<fileNameDegree.count; i++) {
         if (![fileNameDegree[i] hasPrefix:@"."]) {
@@ -92,7 +94,7 @@
     [[NSFileManager defaultManager]createFileAtPath:filePath contents:[[self CollectionViewController] dataUsingEncoding:NSUTF8StringEncoding] attributes:nil];
 }
 - (void)saveStoryBoard:(NSString *)ViewController TableViewCells:(NSArray *)tableviewCells toFileName:(NSArray *)fileNameDegree{
-    NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
+    NSString *filePath=[ZHFileManager getMacDesktop];
     
     for (NSInteger i=0; i<fileNameDegree.count; i++) {
         if (![fileNameDegree[i] hasPrefix:@"."]) {
@@ -138,7 +140,7 @@
     
 }
 - (NSString *)creatFatherFileDirector:(NSString *)directorName toFatherDirector:(NSString *)fatherDirectorName{
-    NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
+    NSString *filePath=[ZHFileManager getMacDesktop];
     
     if (fatherDirectorName.length==0) {
         filePath =[filePath stringByAppendingPathComponent:directorName];
@@ -160,8 +162,8 @@
 /**打开某个文件*/
 - (void)openFile:(NSString *)fileName{
     if ([[NSFileManager defaultManager]fileExistsAtPath:fileName]) {
-        NSString *open=[NSString stringWithFormat:@"open %@",fileName];
-        system([open UTF8String]);
+//        NSString *open=[NSString stringWithFormat:@"open %@",fileName];
+//        system([open UTF8String]);
     }
 }
 

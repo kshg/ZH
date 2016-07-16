@@ -30,6 +30,7 @@ typedef NS_ENUM(NSUInteger, FileType) {
 /**获取上一层的文件路径*/
 + (NSString *)getFilePathRemoveFileName:(NSString *)filePath;
 
++ (NSString *)getMacDesktop;
 #pragma mark 创建文件(夹)操作
 /**创建文件夹,如果它不存在*/
 + (void)creatDirectorIfNotExsit:(NSString *)DirectorPath;

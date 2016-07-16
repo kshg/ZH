@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
 
+/**这个类用于创建文件*/
+
 @interface ZHStroyBoardFileManager : NSObject
 + (NSMutableDictionary *)defalutFileDicM;
 + (NSMutableDictionary *)defalutContextDicM;
@@ -21,4 +23,6 @@
 
 + (NSString *)getAdapterCollectionViewCellName:(NSString *)name;
 + (NSString *)getAdapterCollectionViewCellModelName:(NSString *)name;
+
++ (NSString *)getAdapterCollectionViewCellAndTableViewCellName:(NSString *)name;
 @end
